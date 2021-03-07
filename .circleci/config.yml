@@ -186,13 +186,11 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
-            exit 1
       - awsforansible
       - run:
           name: Configure server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-            exit 1
       - destroy-environment
 
   run-migrations:
@@ -207,7 +205,6 @@ jobs:
             touch dbmigrationresults
             cd backend 
             npm run migrations > dbmigrationresults
-            exit 1
       - run: cat dbmigrationresults
       - run:
           name: Send migration results to memstash
