@@ -198,7 +198,6 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - awsforansible
       - run: cd backend && npm install
       - run:
           name: Run migrations
