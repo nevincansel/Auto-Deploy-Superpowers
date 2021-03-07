@@ -107,6 +107,7 @@ jobs:
           name: Test Backend
           command: |
             cd backend
+            npm install jest-junit
             npm run test
 
   scan-frontend:
