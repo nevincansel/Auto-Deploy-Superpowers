@@ -198,14 +198,14 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - awsforansible
       - run: cd backend && npm install
       - run:
           name: Run migrations
           command: |
-            touch dbmigrationresults
             cd backend 
-            npm run migrations > dbmigrationresults
-      - run: cat dbmigrationresults
+            npm run migrations > dbmigrationresults.txt
+      - run: cat dbmigrationresults.txt
       - run:
           name: Send migration results to memstash
           command: |
