@@ -3,24 +3,27 @@ version: 2.1
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      # Add parameter here   
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            # Your code here
-            exit 1
+            aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Deleting the S3 bucket and files
+          when: on_fail
+          command: |
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      # Add parameter here     
+      # Add parameter here
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS = 1
@@ -34,12 +37,9 @@ commands:
 
   awsforansible:
     description: installing aws cli
-    parameters:
-      # Add parameter here
     steps:
       - run:
           name: installation of pip and aws cli
-          # Add when this will run
           command: |
             apk add --no-cache \
             python3 \
@@ -47,7 +47,7 @@ commands:
             && pip3 install --upgrade pip \
             && pip3 install \
             awscli \
-            && rm -rf /var/cache/apk/* 
+            && rm -rf /var/cache/apk/*
 
 jobs:
   build-frontend:
@@ -96,7 +96,7 @@ jobs:
         command: |
           cd frontend
           npm run test
-                
+
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -109,7 +109,7 @@ jobs:
         command: |
           cd backend
           npm run test
-            
+
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -173,7 +173,7 @@ jobs:
           root: ~/
           paths:
             - .circleci/ansible/inventory.txt
-      - destroy-environment   
+      - destroy-environment
 
   configure-infrastructure:
     docker:
@@ -196,7 +196,7 @@ jobs:
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
             exit 1
-      - destroy-environment        
+      - destroy-environment
 
   run-migrations:
     docker:
@@ -221,7 +221,7 @@ jobs:
             else
             curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "false" https://api.memstash.io/values/<< pipeline.id >>_migrations
             fi
-      - destroy-environment  
+      - destroy-environment
 
   deploy-frontend:
     docker:
@@ -251,8 +251,8 @@ jobs:
           name: Deploy frontend objects
           command: |
             aws s3 cp frontend/dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
-      - destroy-environment    
-                    
+      - destroy-environment
+
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
@@ -280,7 +280,7 @@ jobs:
             printenv >> ./backend/.env
             cat ./backend/.env
             ansible-playbook -i .circleci/ansible/inventory .circleci/ansible/deploy-backend.yml
-      - destroy-environment   
+      - destroy-environment
 
   smoke-test:
     docker:
@@ -354,24 +354,23 @@ jobs:
       - revert-migrations
 
 cleanup:
-    docker:
-      # Docker image here
-    steps:
-      - checkout
-      - run:
-          name: Get old stack workflow id
-          command: |
+  docker:
+    # Docker image here
+  steps:
+    - checkout
+    - run:
+        name: Get old stack workflow id
+        command: |
+          # your code here
+          export OldWorkflowID="the id here"
+          export STACKS=[] #put the list of stacks here
+    - run:
+        name: Remove old stacks and files
+        command: |
+          if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+          then
             # your code here
-            export OldWorkflowID="the id here"
-            export STACKS=[] #put the list of stacks here
-      - run:
-          name: Remove old stacks and files
-          command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              # your code here
-            fi
-            
+          fi
 
 workflows:
   default:
