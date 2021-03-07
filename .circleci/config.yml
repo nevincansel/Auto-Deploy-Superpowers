@@ -164,12 +164,12 @@ jobs:
           command: |
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
-            --output text >> ~/.circleci/ansible/inventory.txt
-            cat ~/.circleci/ansible/inventory
+            --output text >> ./.circleci/ansible/inventory.txt
+            cat ./.circleci/ansible/inventory
       - persist_to_workspace:
-          root: ~/
+          root: .circleci/ansible/
           paths:
-            - .circleci/ansible/inventory.txt
+            - inventory.txt
       - destroy-environment
 
   configure-infrastructure:
@@ -181,7 +181,7 @@ jobs:
           fingerprints:
             - "d1:c3:52:06:4c:e8:b4:fd:99:d9:85:cb:61:ee:90:ad"
       - attach_workspace:
-          at: ~/
+          at: .circleci/ansible/
       - run:
           name: Install dependencies
           command: |
@@ -226,7 +226,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ~/
+          at: .circleci/ansible/
       - run:
           name: Install dependencies
           command: |
@@ -259,7 +259,7 @@ jobs:
           fingerprints:
             - "d1:c3:52:06:4c:e8:b4:fd:99:d9:85:cb:61:ee:90:ad"
       - attach_workspace:
-          at: ~/
+          at: .circleci/ansible/
       - run:
           name: Install dependencies
           command: |
@@ -273,10 +273,10 @@ jobs:
           name: Deploy backend
           no_output_timeout: 30m
           command: |
-            cat .circleci/ansible/inventory
+            cat .circleci/ansible/inventory.txt
             printenv >> ./backend/.env
             cat ./backend/.env
-            ansible-playbook -i .circleci/ansible/inventory .circleci/ansible/deploy-backend.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       - destroy-environment
 
   smoke-test:
@@ -286,7 +286,7 @@ jobs:
       - checkout
       - awsforansible
       - attach_workspace:
-          at: ~/
+          at: .circleci/ansible/
       - run:
           name: Install dependencies
           command: |
