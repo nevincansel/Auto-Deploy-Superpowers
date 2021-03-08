@@ -166,7 +166,7 @@ jobs:
             --output text >> ./.circleci/ansible/inventory.txt
             cat ./.circleci/ansible/inventory.txt
       - run:
-          name: Save back-end DNS
+          name: Save back-end IP
           command: |
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -284,9 +284,9 @@ jobs:
           name: Deploy backend
           no_output_timeout: 30m
           command: |
-            cat .circleci/ansible/inventory.txt
             printenv >> ./backend/.env
             cat ./backend/.env
+            cat .circleci/ansible/inventory.txt
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       - destroy-environment
 
