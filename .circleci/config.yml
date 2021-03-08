@@ -303,14 +303,11 @@ jobs:
           command: |
             apk add --update tar gzip ansible nodejs npm curl jq
       - run:
-          name: Get backend url
+          name: Get backend url and smoke test
           command: |
             export BACKEND_IP=$(cat .circleci/ansible/backendip.txt)
             export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "${API_URL}"
-      - run:
-          name: Backend smoke test.
-          command: |
             if curl -s --head ${API_URL}
             then
               return 0
