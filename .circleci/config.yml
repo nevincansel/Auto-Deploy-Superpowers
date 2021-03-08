@@ -208,6 +208,7 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            touch dbmigrationresults.txt
             cd backend 
             npm run migrations > dbmigrationresults.txt
       - run: cat dbmigrationresults.txt
