@@ -1,9 +1,8 @@
 ---
-- name: "copy backend folder"
-  become: true
-  synchronize:
-    src: ../../backend
-    dest: /home/ubuntu/
+- name: "move backend files to server."
+  copy:
+    src: /root/project/backend
+    dest: /home/ubuntu
     recursive: true
 
 - name: "install node dependencies"
