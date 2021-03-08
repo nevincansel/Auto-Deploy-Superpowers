@@ -384,3 +384,4 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update-and-clean:
           requires: [smoke-test]
+
