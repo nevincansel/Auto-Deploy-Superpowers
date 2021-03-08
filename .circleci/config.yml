@@ -308,12 +308,7 @@ jobs:
             export BACKEND_IP=$(cat .circleci/ansible/backendip.txt)
             export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "${API_URL}"
-            if curl -s --head ${API_URL}
-            then
-              return 0
-            else
-              return 1
-            fi
+            curl ${API_URL}
       - run:
           name: Frontend smoke test.
           command: |
