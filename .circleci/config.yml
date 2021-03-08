@@ -245,6 +245,7 @@ jobs:
             export BACKEND_DNS=$(cat .circleci/ansible/inventory.txt)
             export API_URL="http://${BACKEND_DNS}:3030"
             echo "${API_URL}"
+            cd frontend
             npm install 
             npm run build
       - run:
