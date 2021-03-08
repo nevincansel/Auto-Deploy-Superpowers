@@ -162,21 +162,21 @@ jobs:
           name: Add back-end dns to ansible inventory
           command: |
             aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicDnsName' \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text >> ./.circleci/ansible/inventory.txt
             cat ./.circleci/ansible/inventory.txt
       - run:
           name: Save back-end DNS
           command: |
             aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicDnsName' \
-            --output text >> ./.circleci/ansible/backenddns.txt
-            cat ./.circleci/ansible/backenddns.txt
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --output text >> ./.circleci/ansible/backendip.txt
+            cat ./.circleci/ansible/backendip.txt
       - persist_to_workspace:
           root: .circleci/ansible/
           paths:
             - inventory.txt
-            - backenddns.txt
+            - backendip.txt
       - destroy-environment
 
   configure-infrastructure:
@@ -249,8 +249,8 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_DNS=$(cat .circleci/ansible/backenddns.txt)
-            export API_URL="http://${BACKEND_DNS}:3030"
+            export BACKEND_IP=$(cat .circleci/ansible/backendip.txt)
+            export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             cd frontend
             npm install 
@@ -284,7 +284,7 @@ jobs:
           name: Deploy backend
           no_output_timeout: 30m
           command: |
-            cat .circleci/ansible/backenddns.txt
+            cat .circleci/ansible/backendip.txt
             printenv >> ./backend/.env
             cat ./backend/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
@@ -305,8 +305,8 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_DNS=$(cat .circleci/ansible/backenddns.txt)
-            export API_URL="http://${BACKEND_DNS}:3030/api/status"
+            export BACKEND_IP=$(cat .circleci/ansible/backendip.txt)
+            export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "${API_URL}"
       - run:
           name: Backend smoke test.
