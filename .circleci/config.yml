@@ -284,7 +284,7 @@ jobs:
           name: Deploy backend
           no_output_timeout: 30m
           command: |
-            cat .circleci/ansible/backendip.txt
+            cat .circleci/ansible/inventory.txt
             printenv >> ./backend/.env
             cat ./backend/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
