@@ -159,16 +159,24 @@ jobs:
               --stack-name "frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
       - run:
-          name: Add back-end ip to ansible inventory
+          name: Add back-end dns to ansible inventory
           command: |
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
             --output text >> ./.circleci/ansible/inventory.txt
             cat ./.circleci/ansible/inventory.txt
+      - run:
+          name: Save back-end DNS
+          command: |
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicDnsName' \
+            --output text >> ./.circleci/ansible/backenddns.txt
+            cat ./.circleci/ansible/backenddns.txt
       - persist_to_workspace:
           root: .circleci/ansible/
           paths:
             - inventory.txt
+            - backenddns.txt
       - destroy-environment
 
   configure-infrastructure:
@@ -241,7 +249,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_DNS=$(cat .circleci/ansible/inventory.txt)
+            export BACKEND_DNS=$(cat .circleci/ansible/backenddns.txt)
             export API_URL="http://${BACKEND_DNS}:3030"
             echo "${API_URL}"
             cd frontend
@@ -276,7 +284,7 @@ jobs:
           name: Deploy backend
           no_output_timeout: 30m
           command: |
-            cat .circleci/ansible/inventory.txt
+            cat .circleci/ansible/backenddns.txt
             printenv >> ./backend/.env
             cat ./backend/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
@@ -297,8 +305,8 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_DNS=$(cat .circleci/ansible/inventory.txt)
-            export API_URL="http://${BACKEND_DNS}:3030"
+            export BACKEND_DNS=$(cat .circleci/ansible/backenddns.txt)
+            export API_URL="http://${BACKEND_DNS}:3030/api/status"
             echo "${API_URL}"
       - run:
           name: Backend smoke test.
