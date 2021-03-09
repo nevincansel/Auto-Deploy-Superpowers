@@ -286,6 +286,7 @@ jobs:
           command: |
             printenv >> ./backend/.env
             cat ./backend/.env
+            export ANSIBLE_HOST_KEY_CHECKING=False
             cat .circleci/ansible/inventory.txt
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       - destroy-environment
