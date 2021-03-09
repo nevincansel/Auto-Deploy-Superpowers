@@ -345,7 +345,7 @@ jobs:
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                   --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
             echo OldWorkflowID: $OldWorkflowID
-            echo Stakcs: $STACKS
+            echo Stacks: $STACKS
 
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
@@ -354,7 +354,7 @@ jobs:
             
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
-            aws s3 rb s3://udapeople-$OLD_WORKFLOW_ID:0:7} --force
+            aws s3 rb s3://udapeople-${OLD_WORKFLOW_ID:0:7} --force
             aws cloudformation delete-stack --stack-name backend-${OldWorkflowID}
             aws cloudformation delete-stack --stack-name frontend-${OldWorkflowID}
             echo "stack deleted succesfully"
