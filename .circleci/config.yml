@@ -341,7 +341,7 @@ jobs:
             echo $STACKS
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
-            --stack-name "udapeople" \
+            --stack-name "udapeople-nevincansel" \
             --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
