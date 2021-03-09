@@ -354,7 +354,7 @@ jobs:
             
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
-            aws s3 rb s3://udapeople-$OLD_WORKFLOW_ID:0:7} --force
+            aws s3 rb s3://udapeople-${OLD_WORKFLOW_ID:0:7} --force
             aws cloudformation delete-stack --stack-name backend-${OldWorkflowID}
             aws cloudformation delete-stack --stack-name frontend-${OldWorkflowID}
             echo "stack deleted succesfully"
