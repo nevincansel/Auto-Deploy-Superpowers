@@ -1,4 +1,10 @@
 ---
+- name: Create folder for backend files
+  become: yes
+  file:
+    path: /home/ubuntu/backend
+    state: directory
+
 - name: "move backend files to server."
   become: true
   copy:
